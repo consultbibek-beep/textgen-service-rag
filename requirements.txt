@@ -1,4 +1,16 @@
 # mini-gen/textgen-service/requirements.txt
-Flask>=2.1
-groq>=0.1
-python-dotenv>=1.0.0
+# Flask>=2.1
+# groq>=0.1
+# python-dotenv>=1.0.0
+
+flask
+requests
+python-dotenv
+langchain-groq
+langchain-community
+langchain-core
+langchain-text-splitters
+qdrant-client
+pydantic
+unstructured[all]       # Required for robust PDF parsing
+sentence-transformers   # Required for HuggingFaceEmbeddings
