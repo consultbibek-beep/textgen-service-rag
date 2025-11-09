@@ -38,7 +38,8 @@ COPY app.py textgen_api.py rag_api.py ./
 # CRITICAL: Copy the PDF document (assuming it is located at the project root or in the textgen-service-rag dir)
 # If it's in the project root: COPY ../138.pdf /app/138.pdf
 # Assuming it's available for copying:
-COPY 138.pdf /app/138.pdf 
+
+COPY assets/138.pdf /app/138.pdf
 
 # Expose the application port
 EXPOSE 5001
