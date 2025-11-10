@@ -5,7 +5,8 @@ import logging
 from dotenv import load_dotenv
 
 # Import the logic modules
-from textgen_api import setup_simple_generation_route, run_simple_generation_app
+# FIX: Removed the non-existent function 'run_simple_generation_app'
+from textgen_api import setup_simple_generation_route
 from rag_api import setup_rag_route, ingest_pdf, setup_rag
 
 load_dotenv()
