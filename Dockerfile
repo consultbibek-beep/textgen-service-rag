@@ -22,6 +22,8 @@ RUN apt-get update && \
     libgomp1 \
     poppler-utils \
     netcat-traditional \
+    libgl1 \
+    libglib2.0-0 \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Copy requirements before installing to leverage Docker cache
@@ -43,4 +45,4 @@ EXPOSE 5001
 
 # FIX: Run a bash script to wait for Qdrant service before running the application
 # It uses the QDRANT_HOST/PORT environment variables (set in k8s)
-CMD ["/bin/bash", "-c", "echo 'Waiting for Qdrant service...' && while ! nc -z qdrant-service 6333; do sleep 1; done; echo 'Qdrant is up. Starting TextGen app.' && python app.py"]
+CMD ["/bin/bash", "-c", "echo 'Waiting for Qdrant service...' && while ! nc -z $QDRANT_HOST $QDRANT_PORT; do sleep 1; done; echo 'Qdrant is up. Starting TextGen app.' && python app.py"]

@@ -1,7 +1,7 @@
 # mini-gen-search/textgen-service-rag/rag_api.py
 from flask import request, jsonify
 import os
-from langchain_community.document_loaders import UnstructuredFileLoader
+from langchain_community.document_loaders import PyPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import Qdrant
 from langchain_community.embeddings import HuggingFaceEmbeddings
@@ -45,7 +45,7 @@ def ingest_pdf(logger):
 
     # Ingestion logic
     logger.info("Starting PDF Ingestion and Indexing...")
-    loader = UnstructuredFileLoader(PDF_PATH, strategy="hi_res", mode="elements")
+    loader = PyPDFLoader(PDF_PATH)
     documents = loader.load()
     text_splitter = RecursiveCharacterTextSplitter(chunk_size=1500, chunk_overlap=200)
     chunks = text_splitter.split_documents(documents)
