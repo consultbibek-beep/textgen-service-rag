@@ -16,7 +16,7 @@ PDF_PATH = "/app/138.pdf"
 QDRANT_HOST = os.environ.get("QDRANT_HOST", "qdrant")
 QDRANT_PORT = int(os.environ.get("QDRANT_PORT", 6333))
 COLLECTION_NAME = "electoral_list_rag"
-LLM_MODEL = "llama3-8b-8192"
+LLM_MODEL = "llama-3.1-8b-instant"  # Updated from decommissioned llama3-8b-8192
 
 # Global RAG chain (will be set by the main app)
 rag_chain = None
@@ -36,7 +36,12 @@ def ingest_pdf(logger):
             collection_info = client.get_collection(collection_name=COLLECTION_NAME)
             if collection_info.points_count > 0:
                 logger.info(f"Collection '{COLLECTION_NAME}' populated. Skipping ingestion.")
-                return Qdrant(client=client, collection_name=COLLECTION_NAME, embeddings=embeddings)
+                # Use connection parameters instead of client object to avoid pickle errors
+                return Qdrant.from_existing_collection(
+                    embedding=embeddings,
+                    collection_name=COLLECTION_NAME,
+                    url=f"http://{QDRANT_HOST}:{QDRANT_PORT}"
+                )
         except Exception:
             logger.info(f"Collection '{COLLECTION_NAME}' does not exist. Creating and ingesting data.")
     except Exception as e:
@@ -47,6 +52,12 @@ def ingest_pdf(logger):
     logger.info("Starting PDF Ingestion and Indexing...")
     loader = PyPDFLoader(PDF_PATH)
     documents = loader.load()
+
+    # Debug by Inspection: Modify textgen-service-rag/rag_api.py (temporarily) to print the content it sees
+    logger.info(f"Loaded {len(documents)} pages.")
+    if len(documents) > 0:
+        logger.info(f"Sample content: {documents[0].page_content[:500]}")
+
     text_splitter = RecursiveCharacterTextSplitter(chunk_size=1500, chunk_overlap=200)
     chunks = text_splitter.split_documents(documents)
     
@@ -55,10 +66,11 @@ def ingest_pdf(logger):
         vectors_config=models.VectorParams(size=384, distance=models.Distance.COSINE),
     )
     
+    # Use connection parameters instead of client object to avoid pickle errors
     vector_store_instance = Qdrant.from_documents(
         chunks,
         embeddings,
-        client=client,
+        url=f"http://{QDRANT_HOST}:{QDRANT_PORT}",
         collection_name=COLLECTION_NAME
     )
     logger.info("✅ PDF Ingestion and Indexing complete.")
